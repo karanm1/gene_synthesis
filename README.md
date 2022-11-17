@@ -8,5 +8,5 @@ The cost data (data/Gene Synthesis Data) comes from two sources:
 1) From manually checking the websites (and wayback machine archives) of the firms for which data is shown
 2) From Rob Carlson's estimates of synthsis costs
 
-##Code
+## Code
 The code for this project is written in Stata
