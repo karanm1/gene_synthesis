@@ -6,6 +6,9 @@ cd ${synthesis_root}
 
 import excel "data/Gene Synthesis Data.xlsx", sheet("By Firm Price") firstrow case(lower)
 
+*Add Results Folder
+cap mkdir results
+
 *Dropping firms with no data and empty rows
 drop if mi(firm) | mi(year)
 
