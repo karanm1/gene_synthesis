@@ -4,7 +4,23 @@ set scheme s1color
 
 cd ${synthesis_root}
 
-import excel "data/Gene Synthesis Data.xlsx", sheet("By Firm Price") firstrow case(lower)
+*Importing data
+import delimited using data/raw/CPIAUCSL.csv, clear
+
+destring date, replace
+
+gen year = substr(date, 1,4)
+destring year, replace
+
+drop date
+
+gen deflator = 100/cpiaucsl_nbd19990101
+drop cpiaucsl_nbd19990101
+
+tempfile d1
+save `d1', replace
+
+import excel "data/raw/Gene Synthesis Data.xlsx", sheet("By Firm Price") firstrow case(lower) clear
 
 *Add Results Folder
 cap mkdir results
@@ -12,21 +28,38 @@ cap mkdir results
 *Dropping firms with no data and empty rows
 drop if mi(firm) | mi(year)
 
+*Merging in deflator
+merge m:1 year using `d1', nogen keep(1 3) 
+
+*Keeping Only Clonal Data
 keep if synthesistype=="C"
 
+*Deflated costperbase
+gen costperbase_deflated = costperbase*deflator
+
 label var costperbase "Cost per Base ($)"
+label var costperbase_deflated "Cost per Base ($)"
+
 
 gen ln_costperbase = ln(costperbase)
 label var ln_costperbase "Ln(costperbase)"
 
+gen ln_costperbase_deflated = ln(costperbase_deflated)
+label var ln_costperbase_deflated "Ln(costperbase)"
+
 gen log10_costperbase = log10(costperbase)
 label var log10_costperbase "Log_10(costperbase)"
+
+gen log10_costperbase_deflated = log10(costperbase_deflated)
+label var log10_costperbase_deflated "Log_10(costperbase)"
 
 gen log2_costperbase = ln(costperbase)/ln(2)
 label var log2_costperbase "Log_2(costperbase)"
 
-tempfile d1
-save `d1'
+gen log2_costperbase_deflated = ln(costperbase_deflated)/ln(2)
+label var log2_costperbase_deflated "Log_2(costperbase)"
+
+save data/derived/cost_clonal_clean, replace
 /*
 replace firm = subinstr(firm, " ", "", .)
 
@@ -36,7 +69,7 @@ reshape wide costperbase , i(year) j(firm) string
 */
 
 *All including Carlson curve
-use `d1', clear
+use data/derived/cost_clonal_clean, clear
 
 encode firm, gen(firmcode)
 xtset firmcode year
@@ -81,7 +114,7 @@ xtline log2_costperbase, overlay recast(connected) plot1opts(msymbol(dh)) plot2o
 graph export results/log2_cost_firms.png, replace
 
 
-use `d1', clear
+use data/derived/cost_clonal_clean, clear
 encode firm, gen(firmcode)
 xtset firmcode year
 
