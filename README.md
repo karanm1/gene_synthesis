@@ -1,7 +1,7 @@
 # Gene Synthesis Price Forecasting
 
-This project has the goal of compiling data on the cost of gene synthesis over time and across firms with the goal of forecasting the future cost of
-synthesis and the scale/magnitude of its use.
+This project compiles data on the cost of gene synthesis over time and across firms with the goal of forecasting the future cost of
+synthesis and the scale of its use.
 
 ## Data
 The cost data (data/raw/Gene Synthesis Data) comes from two sources: 
